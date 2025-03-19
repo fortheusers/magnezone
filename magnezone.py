@@ -3,6 +3,7 @@
 import sys, os
 import json
 import requests
+import cherrypy
 
 REPO1 = "https://switch-hbas-repo.b-cdn.net/repo.json"
 REPO2 = "https://switchbru.com/appstore/repo.json"
@@ -50,6 +51,24 @@ def refresh():
 	
 	# TODO: Clear cache on CDN
 
-print("Magnezone: Repo Merger v0.1")
-# TODO: add commands to clear repo1/repo2/both
-refresh()
+# start a web server to access /refresh
+class Magnezone:
+	@cherrypy.expose
+	def refresh(self, **params):
+		# the command can specify if it's repo1, repo2, or both
+		target = params.get("repo", "both")
+		for idx in range(2):
+			path = f"repo{idx + 1}"
+			if target == path or target == "both":
+				# delete the repo file
+				if os.path.exists(f"{path}.json"):
+					os.remove(f"{path}.json")
+		# do the main refresh
+		refresh()
+
+if len(sys.argv) > 1 and sys.argv[1] == "serve":
+	cherrypy.quickstart(Magnezone())
+else:
+	print("Magnezone: Repo Merger v0.1")
+	# TODO: add commands to clear repo1/repo2/both
+	refresh()
