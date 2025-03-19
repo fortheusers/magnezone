@@ -8,6 +8,13 @@ import cherrypy
 REPO1 = "https://switch-hbas-repo.b-cdn.net/repo.json"
 REPO2 = "https://switchbru.com/appstore/repo.json"
 
+def getRepo():
+	# just directly return the contents of repo.json
+	if not os.path.exists("repo.json"):
+		refresh()
+	with open("repo.json", "r") as f:
+		return f.read()
+
 def refresh():
 	print("Refreshing repos...")
 	# if one of our repo's doesn't exist, re-download it
@@ -65,6 +72,14 @@ class Magnezone:
 					os.remove(f"{path}.json")
 		# do the main refresh
 		refresh()
+	
+	@cherrypy.expose
+	def repo_json(self):
+		return getRepo()
+
+	@cherrypy.expose
+	def index(self):
+		return "BZZZZT! MAGNEZONE"
 
 if len(sys.argv) > 1 and sys.argv[1] == "serve":
 	cherrypy.quickstart(Magnezone())
