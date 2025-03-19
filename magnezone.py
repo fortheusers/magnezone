@@ -6,7 +6,7 @@ import requests
 import cherrypy
 
 REPO1 = "https://switch-hbas-repo.b-cdn.net/repo.json"
-REPO2 = "https://switchbru.com/appstore/repo.json"
+REPO2 = "https://hbas-switch.b-cdn.net/repo.json"
 
 def getRepo():
 	# just directly return the contents of repo.json
