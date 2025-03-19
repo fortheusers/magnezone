@@ -26,11 +26,11 @@ Which has two endpoints, `/refresh` and `/repo.json`. The former can be called w
 
 Specifically, using the example `nginx.conf`, we have the following setup:
 
-- Merged: `https://merged-switch-repo.b-cdn.net` (CDN for `https://magnezone.fortheusers.org`)
-    - Primary: `switch-hbas-repo.b-cdn.net` (CDN for [switch-hbas-repo](https://github.com/fortheusers/switch-hbas-repo))
-    - Secondary: `https://hbas-switch.b-cdn.net` (CDN for `https://switchbru.com/appstore`)
+- Merged: `switch.cdn.fortheusers.org` (CDN for `magnezone.fortheusers.org`)
+    - Primary: `switch2.cdn.fortheusers.org` (CDN for [switch-hbas-repo](https://github.com/fortheusers/switch-hbas-repo))
+    - Secondary: `switch1.cdn.fortheusers.org` (CDN for `switchbru.com/appstore`)
 
-And then the `switch.cdn.fortheusers.org` domain is pointed to the merged repo CDN address, which is ultimately what is presented to both the console and web HBAS clients.
+The top-level `switch.cdn.fortheusers.org` domain is ultimately what is presented to/used by both the console and web HBAS clients.
 
 For more info on that endpoint, see [hb-app.store/api-info](https://hb-app.store/api-info).
 

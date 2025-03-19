@@ -5,8 +5,8 @@ import json
 import requests
 import cherrypy
 
-REPO1 = "https://switch-hbas-repo.b-cdn.net/repo.json"
-REPO2 = "https://hbas-switch.b-cdn.net/repo.json"
+REPO1 = "https://switch2.cdn.fortheusers.org/repo.json" # "2nd" repo, primary
+REPO2 = "https://switch1.cdn.fortheusers.org/repo.json" # "1st" repo, the fallback
 
 def getRepo():
 	# just directly return the contents of repo.json
