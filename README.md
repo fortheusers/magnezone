@@ -16,11 +16,6 @@ python3 magnezone.py serve
 
 Which has two endpoints, `/refresh` and `/repo.json`. The former can be called with a parameter `repo` which can be `repo1` or `repo2`, to only refresh that half of the merged repo.
 
-### TODO
-- Allow deleting cached repo JSON via a Github/Discord hook will hit
-- Clear CDN using environment variables
-- Dockerize Nginx setup
-
 ### Diagram
 <img width="1424" alt="Screenshot 2025-03-19 at 12 23 15 AM" src="https://github.com/user-attachments/assets/310a5c32-b3a8-4889-bca9-0364a6f1d1d7" />
 

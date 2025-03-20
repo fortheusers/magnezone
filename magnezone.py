@@ -5,8 +5,25 @@ import json
 import requests
 import cherrypy
 
-REPO1 = "https://switch2.cdn.fortheusers.org/repo.json" # "2nd" repo, primary
-REPO2 = "https://switch1.cdn.fortheusers.org/repo.json" # "1st" repo, the fallback
+# load the config file
+config = None
+if os.path.exists("config.json"):
+	with open("config.json", "r") as f:
+		config = json.loads(f.read())
+if not config:
+	print("No config file found, see git repo for how to setup.")
+	sys.exit(1)
+
+purgeEndpoint = config.get("purgeEndpoint", "")
+apiKey = config.get("apiKey", "")
+
+primaryRepo = config.get("primaryRepo", "")
+secondaryRepo = config.get("secondaryRepo", "")
+mergedRepo = config.get("mergedRepo", "")
+
+if not primaryRepo or not secondaryRepo or not mergedRepo:
+	print("Some repo URLs are missing from the config file.")
+	sys.exit(1)
 
 def getRepo():
 	# just directly return the contents of repo.json
@@ -18,11 +35,11 @@ def getRepo():
 def refresh():
 	print("Refreshing repos...")
 	# if one of our repo's doesn't exist, re-download it
-	for idx, repo in enumerate([REPO1, REPO2]):
+	for idx, repo in enumerate([primaryRepo, secondaryRepo]):
 		if not os.path.exists(f"repo{idx + 1}.json"):
 			print(f"Repo {idx + 1} doesn't exist, re-downloading...")
 			with open(f"repo{idx + 1}.json", "w") as f:
-				f.write(requests.get(repo).text)
+				f.write(requests.get(repo + "/repo.json").text)
 	# load up the package data from the first one
 	data = {}
 	with open("repo1.json", "r") as f:
@@ -58,20 +75,46 @@ def refresh():
 	
 	# TODO: Clear cache on CDN
 
+def clearURL(url):
+	if not purgeEndpoint or not apiKey:
+		print("No purgeEndpoint or apiKey found in config, skipping CDN cache clear.")
+		return
+	print(f"Clearing CDN cache for: {url}")
+	res = requests.post(purgeEndpoint + f"?url={url}", headers={"AccessKey": apiKey})
+	if res.status_code != 200:
+		print(f"Failed to clear cache for {url}, status code: {res.status_code}")
+
+def clearCDN(repo, packages):
+	# purging main repo.json
+	clearURL(repo + "/repo.json")
+	# if any packages were specified, clear those too
+	if packages:
+		for package in packages.split(","):
+			# clear packages and zips
+			clearURL(repo + f"/zips/{package}.zip")
+			clearURL(repo + f"/packages/{package}/*")
+
 # start a web server to access /refresh
 class Magnezone:
 	@cherrypy.expose
 	def refresh(self, **params):
 		# the command can specify if it's repo1, repo2, or both
 		target = params.get("repo", "both")
-		for idx in range(2):
-			path = f"repo{idx + 1}"
+		packages = params.get("packages", "")
+		repoNames = ["primary", "secondary"]
+		for idx, repo in enumerate([primaryRepo, secondaryRepo]):
+			path = repoNames[idx]
 			if target == path or target == "both":
-				# delete the repo file
+				# delete the local repo file
 				if os.path.exists(f"{path}.json"):
 					os.remove(f"{path}.json")
+				clearCDN(repo, packages)
+
 		# do the main refresh
 		refresh()
+
+		# and finally, clear our merged repo of the same files
+		clearCDN(mergedRepo, packages)
 	
 	@cherrypy.expose
 	def repo_json(self):
