@@ -118,7 +118,8 @@ class Magnezone:
 	
 	@cherrypy.expose
 	def repo_json(self):
-		return getRepo()
+		cherrypy.response.headers['Content-Type'] = 'application/json'
+		return getRepo().encode('utf-8')
 
 	@cherrypy.expose
 	def index(self):
