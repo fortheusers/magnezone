@@ -1,1 +1,4 @@
-repo*.json
+primary.json
+secondary.json
+repo.json
+config.json

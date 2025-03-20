@@ -4,7 +4,7 @@ Magnezone is a repo merger for the output from [Spinarak](https://github.com/for
 It exists to allow both external contributions via Github but continue allowing the existing repo to function via manual FTP uploads.
 
 ### How to use
-Specify REPO1 and REPO2 at the top of `magnezone.py`, then run with no arguments. It will automatically download each repo, and merge the contents, ignoring duplicate entries from REPO2:
+Specify primary and secondary repo URLs in `config.json`, then run the python script no arguments. It will automatically download each repo, and merge the contents, ignoring duplicate entries from the secondary:
 ```
 python3 magnezone.py
 ```
@@ -14,7 +14,9 @@ To run the server instead:
 python3 magnezone.py serve
 ```
 
-Which has two endpoints, `/refresh` and `/repo.json`. The former can be called with a parameter `repo` which can be `repo1` or `repo2`, to only refresh that half of the merged repo.
+Which has two endpoints, `/refresh` and `/repo.json`. The former can be called with a parameter `repo` which can be `primary` or `secondary`, to only refresh that half of the merged repo.
+
+The refresh endpoint also accepts a list of packages separated by comma, to match the output that Spinarak provides in CI mode. If provided, it will clear those package URLs on the upstream (primary/secondary) repo, refresh/merge, and then clear them again from the merged repo URL.
 
 ### Diagram
 <img width="1424" alt="Screenshot 2025-03-19 at 12 23 15 AM" src="https://github.com/user-attachments/assets/310a5c32-b3a8-4889-bca9-0364a6f1d1d7" />

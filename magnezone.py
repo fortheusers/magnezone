@@ -35,14 +35,15 @@ def getRepo():
 def refresh():
 	print("Refreshing repos...")
 	# if one of our repo's doesn't exist, re-download it
+	repoNames = ["primary", "secondary"]
 	for idx, repo in enumerate([primaryRepo, secondaryRepo]):
-		if not os.path.exists(f"repo{idx + 1}.json"):
-			print(f"Repo {idx + 1} doesn't exist, re-downloading...")
-			with open(f"repo{idx + 1}.json", "w") as f:
+		if not os.path.exists(f"{repoNames[idx]}.json"):
+			print(f"Repo {repoNames[idx]} doesn't exist, re-downloading...")
+			with open(f"{repoNames[idx]}.json", "w") as f:
 				f.write(requests.get(repo + "/repo.json").text)
 	# load up the package data from the first one
 	data = {}
-	with open("repo1.json", "r") as f:
+	with open("primary.json", "r") as f:
 		data = json.loads(f.read())
 	packageKeys = set()
 	if "packages" in data:
@@ -50,11 +51,11 @@ def refresh():
 			if "name" in package: # this field should be mandatory
 				packageKeys.add(package["name"])
 	else:
-		print("No packages in repo1.json")
+		print("No packages in primary.json")
 		data["packages"] = []
 	# now for the data in the second repo, do the same but skip any duplicates
 	duplicates = set()
-	with open("repo2.json", "r") as f:
+	with open("secondary.json", "r") as f:
 		data2 = json.loads(f.read())
 		if "packages" in data2:
 			for package in data2["packages"]:
@@ -65,13 +66,13 @@ def refresh():
 						data["packages"].append(package)
 					
 		else:
-			print("No packages in repo2.json")
+			print("No packages in secondary.json")
 	# save the updated data
 	with open("repo.json", "w") as f:
 		f.write(json.dumps(data, indent=4))
 	print("BZZZZT! Refresh complete, merged repo.json is ready")
 	if len(duplicates) > 0:
-		print(f"Excluded these duplicate packages from repo2: {duplicates}")
+		print(f"Excluded these duplicate packages from secondary: {duplicates}")
 	
 	# TODO: Clear cache on CDN
 
@@ -98,7 +99,7 @@ def clearCDN(repo, packages):
 class Magnezone:
 	@cherrypy.expose
 	def refresh(self, **params):
-		# the command can specify if it's repo1, repo2, or both
+		# the command can specify if it's primary, secondary, or both
 		target = params.get("repo", "both")
 		packages = params.get("packages", "")
 		repoNames = ["primary", "secondary"]
@@ -129,5 +130,4 @@ if len(sys.argv) > 1 and sys.argv[1] == "serve":
 	cherrypy.quickstart(Magnezone())
 else:
 	print("Magnezone: Repo Merger v0.1")
-	# TODO: add commands to clear repo1/repo2/both
 	refresh()
