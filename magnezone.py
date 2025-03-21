@@ -99,6 +99,11 @@ def clearCDN(repo, packages):
 class Magnezone:
 	@cherrypy.expose
 	def refresh(self, **params):
+		# validate auth header matches api key
+		if cherrypy.request.headers.get("AccessKey", "") != apiKey:
+			cherrypy.response.status = 401
+			return "UNAUTHORIZED".encode("utf-8")
+
 		# the command can specify if it's primary, secondary, or both
 		target = params.get("repo", "both")
 		packages = params.get("packages", "")
@@ -116,6 +121,8 @@ class Magnezone:
 
 		# and finally, clear our merged repo of the same files
 		clearCDN(mergedRepo, packages)
+
+		return "BZZZZT! Refresh complete!".encode('utf-8')
 	
 	@cherrypy.expose
 	def repo_json(self):
