@@ -14,7 +14,7 @@ To run the server instead:
 python3 magnezone.py serve
 ```
 
-Which has two endpoints, `/refresh` and `/repo.json`. The former can be called with a parameter `repo` which can be `primary` or `secondary`, to only refresh that half of the merged repo.
+Which has two endpoints, `/refresh` and `/repo.json`. The former can be called with a parameter `repo` which can be `primary` or `secondary`, to only refresh that half of the merged repo. An API key in the header is checked against the apiKey in the config.json.
 
 The refresh endpoint also accepts a list of packages separated by comma, to match the output that Spinarak provides in CI mode. If provided, it will clear those package URLs on the upstream (primary/secondary) repo, refresh/merge, and then clear them again from the merged repo URL.
 

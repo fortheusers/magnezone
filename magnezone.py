@@ -67,6 +67,9 @@ def refresh():
 					
 		else:
 			print("No packages in secondary.json")
+	# before we write our new repo.json, sort the packages by name
+	data["packages"] = list(sorted(data["packages"], key=lambda x: x["name"]))
+
 	# save the updated data
 	with open("repo.json", "w") as f:
 		f.write(json.dumps(data, indent=4))
