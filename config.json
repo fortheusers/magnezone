@@ -1,6 +1,7 @@
 {
     "apiKey": "",
     "purgeEndpoint": "",
+    "statsEndpoint": "",
     "mergedRepo": "",
     "primaryRepo": "",
     "secondaryRepo": ""

@@ -5,6 +5,8 @@ import json
 import requests
 import cherrypy
 
+from collections import Counter
+
 # load the config file
 config = None
 if os.path.exists("config.json"):
@@ -20,6 +22,8 @@ apiKey = config.get("apiKey", "")
 primaryRepo = config.get("primaryRepo", "")
 secondaryRepo = config.get("secondaryRepo", "")
 mergedRepo = config.get("mergedRepo", "")
+
+statsEndpoint = config.get("statsEndpoint", "")
 
 if not primaryRepo or not secondaryRepo or not mergedRepo:
 	print("Some repo URLs are missing from the config file.")
@@ -41,6 +45,14 @@ def refresh():
 			print(f"Repo {repoNames[idx]} doesn't exist, re-downloading...")
 			with open(f"{repoNames[idx]}.json", "w") as f:
 				f.write(requests.get(repo + "/repo.json").text)
+	# also, always on refresh pull in latest stats
+	try:
+		if statsEndpoint:
+			statsData = json.loads(requests.get(statsEndpoint).text)
+	except:
+		print("Something went wrong fetching stats, skipping...")
+		statsData = {}
+
 	# load up the package data from the first one
 	data = {}
 	with open("primary.json", "r") as f:
@@ -64,11 +76,13 @@ def refresh():
 						duplicates.add(package["name"])
 					else:
 						data["packages"].append(package)
-					
 		else:
 			print("No packages in secondary.json")
 	# before we write our new repo.json, sort the packages by name
 	data["packages"] = list(sorted(data["packages"], key=lambda x: x["name"]))
+	# also, update the stats data
+	for package in data["packages"]:
+		package["app_dls"] = statsData.get(package["name"], 0)
 
 	# save the updated data
 	with open("repo.json", "w") as f:
@@ -77,8 +91,6 @@ def refresh():
 	if len(duplicates) > 0:
 		print(f"Excluded these duplicate packages from secondary: {duplicates}")
 	
-	# TODO: Clear cache on CDN
-
 def clearURL(url):
 	if not purgeEndpoint or not apiKey:
 		print("No purgeEndpoint or apiKey found in config, skipping CDN cache clear.")
