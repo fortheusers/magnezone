@@ -4,6 +4,8 @@ import sys, os
 import json
 import requests
 import cherrypy
+import hashlib
+import datetime
 
 from collections import Counter
 
@@ -83,6 +85,8 @@ def refresh():
 	# also, update the stats data
 	for package in data["packages"]:
 		package["app_dls"] = statsData.get(package["name"], 0)
+		if "web_dls" in package:
+			del package["web_dls"] # outdated unused field
 
 	# save the updated data
 	with open("repo.json", "w") as f:
@@ -142,7 +146,17 @@ class Magnezone:
 	@cherrypy.expose
 	def repo_json(self):
 		cherrypy.response.headers['Content-Type'] = 'application/json'
-		return getRepo().encode('utf-8')
+		repo_content = getRepo().encode('utf-8')
+
+		# Calculate etag and last modified headers
+		etag = hashlib.md5(repo_content).hexdigest()
+		cherrypy.response.headers['ETag'] = etag
+
+		last_modified_time = os.path.getmtime("repo.json")
+		last_modified = datetime.datetime.utcfromtimestamp(last_modified_time).strftime('%a, %d %b %Y %H:%M:%S GMT')
+		cherrypy.response.headers['Last-Modified'] = last_modified
+
+		return repo_content
 
 	@cherrypy.expose
 	def index(self):
