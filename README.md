@@ -1,7 +1,7 @@
 ## Magnezone
-Magnezone is a repo merger for the output from [Spinarak](https://github.com/fortheusers/spinarak) (managed at [switch-hbas-repo](https://github.com/fortheusers/switch-hbas-repo/tree/main)) and [Dragonite](https://github.com/fortheusers/dragonite) (managed over Discord).
+Magnezone is a repo merger for the output from [Spinarak](https://github.com/fortheusers/spinarak) (managed at [switch-hbas-repo](https://github.com/fortheusers/switch-hbas-repo/tree/main) or [wiiu-hbas-repo](https://github.com/fortheusers/wiiu-hbas-repo/tree/main)) and [Dragonite](https://github.com/fortheusers/dragonite) (managed over Discord/FTP).
 
-It exists to allow both external contributions via Github but continue allowing the existing repo to function via manual FTP uploads.
+It exists to allow both external contributions via Github but continue allowing the existing repo to function via manual FTP uploads. To view the progress of all packages are managed by metadata repos, see [pkg-metadata-stats](https://fortheusers.github.io/pkg-metadata-stats/).
 
 ### How to use
 Specify primary and secondary repo URLs in `config.json`, then run the python script no arguments. It will automatically download each repo, and merge the contents, ignoring duplicate entries from the secondary:
@@ -27,9 +27,9 @@ Specifically, using the example `nginx.conf`, we have the following setup:
     - Primary: `switch2.cdn.fortheusers.org` (CDN for [switch-hbas-repo](https://github.com/fortheusers/switch-hbas-repo))
     - Secondary: `switch1.cdn.fortheusers.org` (CDN for `switchbru.com/appstore`)
 
-The top-level `switch.cdn.fortheusers.org` domain is ultimately what is presented to/used by both the console and web HBAS clients.
+The top-level `switch.cdn.fortheusers.org` domain is ultimately what is presented to/used by both the console and web HBAS clients. The same applies to [wiiu-hbas-repo](https://github.com/fortheusers/wiiu-hbas-repo) with `wiiu` in the URLs instead of `switch`.
 
-For more info on that endpoint, see [hb-app.store/api-info](https://hb-app.store/api-info).
+For more info on the merged endpoint, see [hb-app.store/api-info](https://hb-app.store/api-info).
 
 ### License
 MIT!
